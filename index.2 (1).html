@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Old-Time Vibes | Music Store & Custom Guitars</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script async src="https://js.stripe.com/v3/buy-button.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'vintage-gold': '#CC8847',
+                        'deep-wood': '#5e352d',
+                        'forest-green': '#385b3b',
+                        'cream-bg': '#f4f0e6',
+                        'dark-bg': '#1a1a1a',
+                        'dark-card': '#2d2d2d'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a1a;
+            color: white;
+            background-image:
+                linear-gradient(rgba(26, 26, 26, 0.85), rgba(26, 26, 26, 0.95)),
+                url('Folder3_h ml image _url123.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        .btn-primary {
+            background-color: #CC8847;
+            color: #1a1a1a;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-link {
+            color: #d1d5db;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #CC8847;
+        }
+
+        .nav-link.active {
+            color: #CC8847;
+            border-bottom: 2px solid #CC8847;
+        }
+
+        .page-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+            min-height: calc(100vh - 200px);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #cart-modal {
+            display: none;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+        }
+
+        dl.glossary-list {
+            border-left: 4px solid #CC8847;
+            padding-left: 1.5rem;
+        }
+
+        dl.glossary-list dt {
+            font-weight: 700;
+            color: #CC8847;
+            margin-top: 1rem;
+            font-size: 1.1rem;
+        }
+
+        dl.glossary-list dd {
+            color: #d1d5db;
+            margin-left: 0;
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        .price-tag {
+            color: #CC8847;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .admin-edit-overlay {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+            cursor: pointer;
+        }
+
+        .group:hover .admin-edit-overlay {
+            opacity: 1;
+        }
+
+        #main-header {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .header-hidden {
+            transform: translateY(-100%);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <header id="main-header" class="bg-deep-wood shadow-2xl sticky top-0 z-40 border-b border-vintage-gold">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex justify-between w-full md:w-auto items-center mb-2 md:mb-0 gap-4">
+                <a href="#" onclick="showPage('home'); return false;" class="flex items-center gap-2 group">
+                    <img src="https://uploads.onecompiler.io/444vq9uft/445yt2ydr/1763540953617.jpg" alt="OTV Logo" class="h-12 w-12 rounded-full border-2 border-vintage-gold shadow-lg group-hover:scale-105 transition" />
+                    <span class="font-bold text-xl tracking-wide hidden sm:block">Old-Time Vibes</span>
+                </a>
+
+                <button onclick="toggleCart()" class="md:hidden bg-vintage-gold text-dark-bg font-bold py-1 px-3 rounded-full flex items-center shadow-lg active:scale-95 transition">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-count-mobile" class="ml-1 bg-dark-bg text-white text-xs px-2 py-0.5 rounded-full">0</span>
+                </button>
+            </div>
+
+            <nav class="flex flex-wrap justify-center gap-4 text-sm font-medium">
+                <a onclick="showPage('home');" class="nav-link active">Home</a>
+                <a onclick="showPage('apparel');" class="nav-link">Apparel</a>
+                <a onclick="showPage('equipment');" class="nav-link">Music Store</a>
+                <a onclick="showPage('lessons');" class="nav-link">Lessons</a>
+                <a onclick="showPage('custom-shop');" class="nav-link">Build Guitar</a>
+                <a onclick="showPage('contact');" class="nav-link">Contact</a>
+                <a onclick="showPage('admin');" class="nav-link text-red-400 hover:text-red-300">Admin</a>
+            </nav>
+
+            <div class="hidden md:block ml-4">
+                <button onclick="toggleCart()" class="btn-primary font-bold py-2 px-4 rounded-full flex items-center shadow-lg">
+                    <i class="fas fa-shopping-cart mr-2"></i> Cart
+                    <span id="cart-count" class="ml-2 bg-dark-bg text-white text-xs px-2 py-1 rounded-full">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto p-4 sm:p-8">
+        <section id="home-page" class="page-content" style="display: block;">
+            <div class="text-center pt-10 pb-12">
+                <div class="flex justify-center mb-8">
+                    <img src="https://uploads.onecompiler.io/444vq9uft/445yt2ydr/1763540953617.jpg" alt="Logo" class="h-56 w-56 rounded-full border-4 border-vintage-gold shadow-2xl" />
+                </div>
+                <h1 class="text-5xl md:text-6xl font-extrabold text-white mb-6">Old-Time Vibes <span class="text-vintage-gold">Supply</span></h1>
+                <p class="text-gray-400 mb-10 text-xl max-w-2xl mx-auto">Authentic gear, vintage apparel, and master-crafted instruments.</p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button onclick="showPage('equipment');" class="bg-forest-green hover:bg-vintage-gold text-white font-bold py-3 px-8 rounded-lg shadow-lg transition">Shop Gear</button>
+                    <button onclick="showPage('lessons');" class="btn-primary font-bold py-3 px-8 rounded-lg shadow-lg">Book Lessons</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="apparel-page" class="page-content">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-gray-700 pb-4">
+                <h2 class="text-4xl font-bold text-white">Apparel Store</h2>
+                <div class="text-right">
+                    <span id="apparel-count" class="text-gray-400 block">Loading items...</span>
+                    <span id="admin-hint-apparel" class="text-xs text-vintage-gold hidden">Admin Mode: Click images to edit</span>
+                </div>
+            </div>
+            <div id="apparel-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+        </section>
+
+        <section id="equipment-page" class="page-content">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-gray-700 pb-4">
+                <h2 class="text-4xl font-bold text-white">Music Store</h2>
+                <div class="text-right">
+                    <span id="store-count" class="text-gray-400 block">Loading items...</span>
+                    <span id="admin-hint-music" class="text-xs text-vintage-gold hidden">Admin Mode: Click images to edit</span>
+                </div>
+            </div>
+            <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+        </section>
+
+        <section id="lessons-page" class="page-content">
+            <h2 class="text-4xl font-bold text-white mb-8 border-b border-gray-700 pb-4">Music Lessons</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-dark-card p-8 rounded-xl shadow-lg border-l-4 border-vintage-gold">
+                    <h3 class="text-2xl font-bold text-white mb-4">Guitar & Bass</h3>
+                    <p class="text-gray-400 mb-6">Master the fretboard with personalized instruction. From beginner chords to advanced theory.</p>
+                    <ul class="text-gray-300 mb-6 list-disc pl-5 space-y-2">
+                        <li>30 Minute Session: <span class="text-vintage-gold font-bold">$30</span></li>
+                        <li>60 Minute Session: <span class="text-vintage-gold font-bold">$50</span></li>
+                    </ul>
+                    <button onclick="addToCart('Guitar Lesson (1hr)', 50.00)" class="btn-primary font-bold py-2 px-6 rounded transition">Book Session</button>
+                </div>
+
+                <div class="bg-dark-card p-8 rounded-xl shadow-lg border-l-4 border-forest-green">
+                    <h3 class="text-2xl font-bold text-white mb-4">Luthier Workshop</h3>
+                    <p class="text-gray-400 mb-6">Learn how to maintain, setup, and repair your own instruments in our workshop.</p>
+                    <ul class="text-gray-300 mb-6 list-disc pl-5 space-y-2">
+                        <li>Group Class: <span class="text-vintage-gold font-bold">$100</span></li>
+                    </ul>
+                    <button onclick="addToCart('Luthier Workshop', 100.00)" class="bg-forest-green text-white font-bold py-2 px-6 rounded hover:bg-vintage-gold transition">Reserve Spot</button>
+                </div>
+            </div>
+
+            <div class="mt-12 bg-dark-card p-8 rounded-xl shadow-lg">
+                <h3 class="text-2xl font-bold text-white mb-6">Glossary of Terms</h3>
+                <dl class="glossary-list">
+                    <dt>Action</dt>
+                    <dd>The distance between the strings and the fretboard. High action makes playing harder; low action is faster but may buzz.</dd>
+
+                    <dt>Intonation</dt>
+                    <dd>The accuracy of pitch at every fret. If intonation is off, the guitar will sound out of tune higher up the neck.</dd>
+
+                    <dt>Relic</dt>
+                    <dd>A process of artificially aging a guitar to give it a vintage, worn-in look and feel.</dd>
+
+                    <dt>Truss Rod</dt>
+                    <dd>A metal rod inside the neck used to adjust the curvature (relief) to counteract string tension.</dd>
+                </dl>
+            </div>
+        </section>
+
+        <section id="custom-shop-page" class="page-content">
+            <h2 class="text-4xl font-bold text-white mb-8 border-b border-gray-700 pb-4">Custom Shop</h2>
+            <div class="bg-dark-card p-8 rounded-xl flex flex-col md:flex-row gap-8 items-center shadow-xl">
+                <div class="md:w-1/2">
+                    <h3 class="text-3xl text-vintage-gold font-bold mb-3">Build Inquiry</h3>
+                    <p class="text-gray-300 mb-4">Our master luthiers can build your dream instrument from scratch.</p>
+                    <p class="text-gray-400 mb-6">Base models start at <span class="text-white font-bold">$2,500</span>. A non-refundable deposit is required to begin the design process.</p>
+                    <button onclick="addToCart('Custom Build Deposit', 500.00)" class="btn-primary font-bold py-3 px-8 rounded transition">Pay Deposit ($500)</button>
+                </div>
+                <div class="md:w-1/2">
+                    <img src="https://uploads.onecompiler.io/444vq9uft/445yt2ydr/1763833868666.jpg" class="rounded-lg shadow-lg w-full h-64 object-cover" />
+                </div>
+            </div>
+        </section>
+
+        <section id="contact-page" class="page-content">
+            <h2 class="text-4xl font-bold text-white mb-8 border-b border-gray-700 pb-4">Contact</h2>
+            <div class="text-white bg-dark-card p-8 rounded-xl shadow-lg max-w-2xl mx-auto">
+                <p class="text-xl mb-4 flex items-center gap-3">
+                    <i class="fas fa-envelope text-vintage-gold"></i>
+                    <a href="mailto:oldtimevibes1@gmail.com" class="hover:text-vintage-gold transition">oldtimevibes1@gmail.com</a>
+                </p>
+                <p class="text-xl flex items-center gap-3">
+                    <i class="fas fa-phone text-vintage-gold"></i>
+                    <span class="text-vintage-gold font-bold">(580) 485-9474</span>
+                </p>
+                <div class="mt-8 border-t border-gray-700 pt-6">
+                    <p class="text-gray-400 flex items-center gap-3">
+                        <i class="fas fa-clock text-gray-500"></i>
+                        Shop Hours: Mon-Fri 10am - 6pm
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="admin-page" class="page-content">
+            <h2 class="text-4xl font-bold text-red-400 mb-8 border-b border-red-600 pb-4">Admin</h2>
+            <p class="text-red-400">Admin page content goes here.</p>
+        </section>
+    </main>
+
+    <script>
+        // Page navigation
+        function showPage(pageId) {
+            const pages = document.querySelectorAll(".page-content");
+            pages.forEach((p) => {
+                p.style.display = "none";
+            });
+
+            const page = document.getElementById(pageId + "-page") || document.getElementById(pageId + "-page");
+            if (page) {
+                page.style.display = "block";
+            }
+
+            // Update nav links active state
+            document.querySelectorAll(".nav-link").forEach(link => {
+                if (link.textContent.trim().toLowerCase().replace(/\s+/g,'') === pageId.replace('-', '')) {
+                    link.classList.add("active");
+                } else {
+                    link.classList.remove("active");
+                }
+            });
+        }
+
+        // Basic cart management
+        let cartCount = 0;
+
+        function addToCart(item, price) {
+            cartCount++;
+            document.getElementById("cart-count").textContent = cartCount;
+            const mobileCount = document.getElementById("cart-count-mobile");
+            if (mobileCount) mobileCount.textContent = cartCount;
+            alert(`Added "${item}" to cart for $${price.toFixed(2)}`);
+        }
+
+        function toggleCart() {
+            alert("Cart functionality coming soon!");
+        }
+
+        // Initially show home page
+        showPage("home");
+    </script>
+</body>
+</html>

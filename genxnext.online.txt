@@ -1,0 +1,42 @@
+;;
+;; Domain:     genxnext.online.
+;; Exported:   2026-11-09 06:40:52
+;;
+;; This file is intended for use for informational and archival
+;; purposes ONLY and MUST be edited before use on a production
+;; DNS server.  In particular, you must:
+;;   -- update the SOA record with the correct authoritative name server
+;;   -- update the SOA record with the contact e-mail address information
+;;   -- update the NS record(s) with the authoritative name servers for this domain.
+;;
+;; For further information, please consult the BIND documentation
+;; located on the following website:
+;;
+;; http://www.isc.org/
+;;
+;; And RFC 1035:
+;;
+;; http://www.ietf.org/rfc/rfc1035.txt
+;;
+;; Please note that we do NOT offer technical support for any use
+;; of this zone data, the BIND name server, or any other third-party
+;; DNS software.
+;;
+;; Use at your own risk.
+;; SOA Record
+genxnext.online	3600	IN	SOA	peyton.ns.cloudflare.com. dns.cloudflare.com. 2054587305 10000 2400 604800 3600
+
+;; NS Records
+genxnext.online.	86400	IN	NS	peyton.ns.cloudflare.com.
+genxnext.online.	86400	IN	NS	ulla.ns.cloudflare.com.
+
+;; MX Records
+genxnext.online.	1	IN	MX	20 eforward5.registrar-servers.com.
+genxnext.online.	1	IN	MX	15 eforward4.registrar-servers.com.
+genxnext.online.	1	IN	MX	10 eforward3.registrar-servers.com.
+genxnext.online.	1	IN	MX	10 eforward2.registrar-servers.com.
+genxnext.online.	1	IN	MX	10 eforward1.registrar-servers.com.
+
+;; TXT Records
+_dmarc.genxnext.online.	1	IN	TXT	"v=DMARC1; p=none; rua=mailto:ebdbef4fe4e640a28feaa5ab3b6657c8@dmarc-reports.cloudflare.net"
+genxnext.online.	1	IN	TXT	"v=spf1 include:spf.efwd.registrar-servers.com ~all"
